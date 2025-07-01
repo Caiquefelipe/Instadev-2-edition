@@ -13,7 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const dialog = ref<QDialog>()
-console.log(props.itens)
+console.log(props.itens, 'itens no carrinho');
 function show() {
     dialog.value?.show()
 }
