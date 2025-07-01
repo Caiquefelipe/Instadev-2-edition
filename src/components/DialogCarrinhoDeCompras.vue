@@ -1,7 +1,6 @@
-<script lang="ts" setup>
-import { QDialog } from 'quasar'
-import { Produto } from 'src/interfaces/Produtos'
+<script setup lang="ts">
 import { ref } from 'vue'
+import type { Produto } from 'src/interfaces/Produtos'
 
 const props = defineProps<{
     itens: Produto[]
@@ -10,66 +9,64 @@ const props = defineProps<{
 const emit = defineEmits<{
     (e: 'remover', index: number): void
     (e: 'adiconar', index: number): void
+    (e: 'pagar'): void
 }>()
 
-const dialog = ref<QDialog>()
-console.log(props.itens, 'itens no carrinho');
+const dialog = ref(false)
+
 function show() {
-    dialog.value?.show()
+    dialog.value = true
 }
+
 function hide() {
-    dialog.value?.hide()
+    dialog.value = false
 }
 
 defineExpose({ show })
 </script>
 
 <template>
-    <q-dialog ref="dialog" persistent>
-        <q-card style="width: 100vw;">
-            <div class="flex justify-between items-center">
-                <q-card-section class="text-h6">Carrinho de Compras</q-card-section>
-                <q-btn flat icon="close" @click="hide()" />
-            </div>
+    <q-dialog v-model="dialog" persistent>
+        <q-card style="width: 100vw; max-width: 600px">
+            <q-card-section class="row items-center justify-between">
+                <div class="text-h6">Carrinho de Compras</div>
+                <q-btn flat icon="close" @click="hide" />
+            </q-card-section>
 
             <q-separator />
 
             <q-card-section>
                 <div v-if="props.itens.length">
                     <q-list>
-                        <q-item v-for="(item, index) in props.itens" :key="item.id">
+                        <q-item v-for="(item, index) in props.itens" :key="item.id" class="q-pb-sm">
                             <q-item-section>
-                                <div class="text-h6">{{ item.nome }}</div>
-                                <div>Preço: R$ {{ item.preco.toFixed(2) }}</div>
+                                <div class="text-subtitle1">{{ item.nome }}</div>
+                                <div class="text-caption">Preço unitário: R$ {{ item.preco.toFixed(2) }}</div>
                             </q-item-section>
 
                             <q-item-section side>
-                                <div v-if="item.quantidade == 1">
-                                    <q-btn flat color="red" icon="fa-solid fa-trash" @click="emit('remover', index)" />
-                                    {{ item.quantidade }}
+                                <div class="row items-center">
+                                    <q-btn flat dense round icon="remove" color="red" @click="emit('remover', index)" />
+                                    <div class="q-px-sm">{{ item.quantidade }}</div>
+                                    <q-btn flat dense round icon="add" color="green" @click="emit('adiconar', index)" />
                                 </div>
-                                <div v-else>
-                                    <q-btn flat color="red" icon="remove_circle" @click="emit('remover', index)" />
-                                    {{ item.quantidade }}
-                                </div>
-
                             </q-item-section>
-                            <q-btn flat color="green" icon="add_circle" @click="emit('adiconar', index)" />
-
                         </q-item>
                     </q-list>
                 </div>
 
-                <div v-else>
-                    <div class="column items-center text-grey">
-                        <q-icon name="remove_shopping_cart" size="64px" class="q-mb-md" color="grey-5" />
-                        <div class="text-subtitle1">Seu carrinho está vazio</div>
-                        <div class="text-caption">Adicione produtos para começar suas compras!</div>
-                    </div>
+                <div v-else class="column items-center text-grey q-mt-md">
+                    <q-icon name="remove_shopping_cart" size="64px" class="q-mb-md" color="grey-5" />
+                    <div class="text-subtitle1">Seu carrinho está vazio</div>
+                    <div class="text-caption">Adicione produtos para começar suas compras!</div>
                 </div>
             </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right" v-if="props.itens.length">
+                <q-btn label="Ir para o Pagamento" color="primary" @click="() => { hide(); emit('pagar') }" />
+            </q-card-actions>
         </q-card>
     </q-dialog>
 </template>
-
-<style scoped></style>

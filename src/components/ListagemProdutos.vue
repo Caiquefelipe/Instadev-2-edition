@@ -8,9 +8,11 @@ import CamisetaPreta from 'src/assets/camiseta-preta.png'
 import DialogCarrinhoDeCompras from 'src/components/DialogCarrinhoDeCompras.vue'
 import DialogDetalhesProduto from 'src/components/DialogDetalhesProduto.vue'
 import type { Produto } from 'src/interfaces/Produtos'
+import DialogPagamento from './DialogPagamento.vue'
 
 const filtro = ref('')
 const dialogCarrinhoDeCompra = ref<typeof DialogCarrinhoDeCompras>()
+const dialogPagamento = ref<typeof DialogPagamento>()
 const produtoSelecionado = ref<Produto | null>(null)
 
 const produtos = ref<Produto[]>([
@@ -86,6 +88,11 @@ function removerProduto(index: number) {
   }
 }
 
+function voltarParaCarrinho() {
+  dialogCarrinhoDeCompra.value?.show()
+}
+
+
 function verDetalhes(produto: Produto) {
   produtoSelecionado.value = produto
 }
@@ -139,11 +146,18 @@ const produtosFiltrados = computed(() =>
 
     </div>
   </q-page>
-
   <DialogCarrinhoDeCompras ref="dialogCarrinhoDeCompra" :itens="produtosAdicionados" @remover="removerProduto"
-    @adiconar="adiconarProduto" />
+    @adiconar="adiconarProduto" @pagar="dialogPagamento?.show()" />
+
+
 
   <DialogDetalhesProduto :produto="produtoSelecionado" @fechar="fecharDetalhes" @adicionar="adicionarAoCarrinho" />
+
+  <DialogPagamento ref="dialogPagamento" :itens="produtosAdicionados"
+    @confirmar="() => { produtosAdicionados.length = 0 }" @adicionar="adiconarProduto" @remover="removerProduto"
+    @fechar="voltarParaCarrinho" />
+
+
 </template>
 
 <style scoped>
