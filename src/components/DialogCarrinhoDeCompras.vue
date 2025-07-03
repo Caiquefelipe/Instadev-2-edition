@@ -17,6 +17,7 @@ const dialog = ref(false)
 function show() {
     dialog.value = true
 }
+console.log(props.itens)
 
 function hide() {
     dialog.value = false
